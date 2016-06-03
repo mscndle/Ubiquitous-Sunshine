@@ -281,15 +281,32 @@ public class SunshineWatchFace extends CanvasWatchFaceService {
                 canvas.drawRect(0, 0, bounds.width(), bounds.height(), mBackgroundPaint);
             }
 
-            // Draw H:MM in ambient mode or H:MM:SS in interactive mode.
-//            mTime.setToNow();
             mCalendar.setTimeZone(TimeZone.getDefault());
             mCalendar.setTimeInMillis(System.currentTimeMillis());
 
+            int hours = mCalendar.get(Calendar.HOUR);
+            int minutes = mCalendar.get(Calendar.MINUTE);
+            int seconds = mCalendar.get(Calendar.SECOND);
+
             String text = mAmbient
-                    ? String.format("%d:%02d", mCalendar., mTime.minute)
-                    : String.format("%d:%02d:%02d", mTime.hour, mTime.minute, mTime.second);
+                    ? String.format("%d:%02d", hours, minutes)
+                    : String.format("%d:%02d:%02d", hours, minutes, seconds);
+
             canvas.drawText(text, mXOffset, mYOffset, mTextPaint);
+
+            //Draw Icon and Temperatures
+            if (mHighTemp != null && mLowTemp != null) {
+                float tempYOffset = dateYOffset + getResources().getDimension(R.dimen.digital_date_text_margin_bottom);
+                //Icon
+                if(mIcon != null && !mLowBitAmbient)
+                    canvas.drawBitmap(mIcon, centerX - mIcon.getWidth() - mIcon.getWidth()/4, tempYOffset - mIcon.getHeight() / 2, mIconPaint);
+                //High temp
+                canvas.drawText(mHighTemp, centerX, tempYOffset, mHighTempPaint);
+                //Low temp
+                float highTempSize = mHighTempPaint.measureText(mHighTemp);
+                float highTempRightMargin = getResources().getDimension(R.dimen.digital_temp_text_margin_right);
+                canvas.drawText(mLowTemp, centerX + highTempSize + highTempRightMargin, tempYOffset, mLowTempPaint);
+            }
         }
 
         /**
@@ -340,12 +357,12 @@ public class SunshineWatchFace extends CanvasWatchFaceService {
 
         @Override
         public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
-
+            //no-op
         }
 
         @Override
         public void onConnectionSuspended(int i) {
-
+            //no-op
         }
     }
 
